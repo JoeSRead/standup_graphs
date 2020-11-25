@@ -123,7 +123,15 @@ def stand_update(G, start_lst = []):
 def connectivity(G, name):
     """Returns a connectivity score (sum of neighbour weights) for a given node."""
     
-    con = 1
+    con = 0
     for neighbour in nx.neighbors(G,name):
         con += G[name][neighbour]['weight']
+    return con
+
+def group_connectivity(G, name, group):
+    """Returns the increase in connectivity score (sum of neighbour weights) of a group that adding the named mentor would have"""
+    
+    con = 0
+    for mentor in group:
+        con += G[name][mentor]['weight']
     return con
