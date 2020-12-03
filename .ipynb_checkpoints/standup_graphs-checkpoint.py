@@ -13,7 +13,8 @@ def grouper(G, start, assigned_lst=[], num = 5):
     if start in lm_lst:
         neb_lst = [start]
         
-# If start is not a lm then they have a mentor line manager or are manager by Tess (more connections)
+# If start is not a lm then they have a mentor line manager or are managed by Tess (more connections)
+# Experimental branch as I am assuming lm as a starting node (for now)
     else:
         if G.degree()[start] == G.number_of_nodes() - 2:
             lm_lst.remove([x for x in list(set(G.nodes) - set(G.neighbors(start))) if x != start][0])
@@ -61,12 +62,14 @@ def line_managers(G, num=5):
 
 def standups(G, lms=[], nm =5):
     """Given G, a list of starting nodes (when blank defaults to line managers), and a desired group size will return a list of groups partioning the entire graph."""
-    
+
+#   Use the line managers as starting nodes if no other starting nodes are given    
     if not lms:
         lm_lst = line_managers(G)
     else:
         lm_lst = lms
-    
+
+#   Set up the list of groups and the list of mentors that have already been assigned 
     groups_lst =[]
     as_lst = lm_lst
     
@@ -74,16 +77,20 @@ def standups(G, lms=[], nm =5):
         
         print('Error: groups not large enough to cover entire team')
         return
-    
+
+#   Shuffle the starting nodes
     lm_lst = sample(lm_lst, len(lm_lst))
     
+#   Create the groups while making sure that there are no doubles
     for lm in lm_lst:
         semi_as_lst = as_lst
         semi_as_lst.remove(lm)
         grp = grouper(G, lm, semi_as_lst, num = nm)
         groups_lst.append(grp)
         as_lst.extend(grp)
-    
+
+#   Swapping algo - it is possible for a mentor to not be assigned a group if they aren't picked until it is their line managers groups turn to pick
+#   This algo finds the unassigned mentors, works out their line managers, works out who is connected to the line manager, then swaps this person in while placing the original unassigned mentor into that group.
     for mentor in list(G.nodes):
         if mentor not in as_lst:
             
