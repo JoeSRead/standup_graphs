@@ -142,3 +142,42 @@ def group_connectivity(G, name, group):
     for mentor in group:
         con += G[name][mentor]['weight']
     return con
+
+
+def take_two(G, starting_nodes = []):
+    """New version, hopefully more sensitive to inter group connectivity """
+    
+    if not starting_nodes:
+        start = line_managers(G)
+    else:
+        start = starting_nodes
+    
+    assigned = start
+    
+    group_lst = [[node] for node in start]
+    
+    num_of_mentors = len(G.nodes)
+ 
+    while len(assigned) < num_of_mentors:
+        
+        for group in group_lst:
+
+            current_size = len(group)
+            
+            con_lst = [[mentor, group_connectivity(G, mentor, group)] for mentor in list(set(nx.neighbors(G, group[0])) - set(group))]
+            con_lst = sample(con_lst, len(con_lst))
+            con_lst.sort(key = lambda x: x[1])
+            con_lst = [x[0] for x in con_lst]
+
+ 
+            for mentor in con_lst:
+                if mentor not in assigned:
+                    group.append(mentor)
+                    assigned.append(mentor)
+                    break
+                else:
+                    pass
+
+            
+    
+    return group_lst
